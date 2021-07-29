@@ -65,7 +65,7 @@ function animate(){
     requestAnimationFrame(animate);
 
     for (let i = 0; i < squareArray.length; i++) {
-        squareArray[i].update();
+        squareArray[i].draw();
         //const element = array[i];
         
     }
