@@ -80,7 +80,6 @@ var Rectangle = function(x, y, width, height) {
       ctx.rect(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
       ctx.fillStyle = '#2793ef';
       ctx.fill();
-  
       ctx.restore();
     }
   }
