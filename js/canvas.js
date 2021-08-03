@@ -16,6 +16,7 @@ var curW=100; //kutu genisligi
 
 var squareArray=[];
 localStorage.setItem('squareArray', squareArray);
+
 function addSquare(){
     squareArray.push(new Square(curX,curY,curDx,curDy,curW,curH));
     localStorage.setItem('squareArray', JSON.stringify(squareArray));

@@ -64,7 +64,8 @@ canvas.addEventListener('click', (e)=>{
 
 */
 
-
+var rectColor='#2793ef';
+var canvasArray=[];
 
 var Rectangle = function(x, y, width, height) {
     this.x = x;
@@ -72,15 +73,35 @@ var Rectangle = function(x, y, width, height) {
     this.width = width;
     this.height = height;
     this.isDragging = false;
-  
+    this.color=rectColor;
+    this.stroke=rectColor;
+    this.isSelected=false;
+
+
     this.render = function(ctx) {
+
+      if(this.isSelected==true){
+        this.stroke='red';
+        ctx.globalCompositeOperation='source-over';
+      }else{
+        this.stroke=rectColor;
+      }
+
+
       ctx.save();
   
       ctx.beginPath();
       ctx.rect(this.x - this.width * 0.5, this.y - this.height * 0.5, this.width, this.height);
-      ctx.fillStyle = '#2793ef';
+      ctx.fillStyle =this.color;
+      //ctx.fillStroke =this.stroke;
+      ctx.strokeStyle = this.stroke;
+      ctx.lineWidth   = 3;
+      ctx.stroke();
       ctx.fill();
       ctx.restore();
+
+
+      console.warn("canvasArray; ",canvasArray);
     }
   }
   
@@ -90,17 +111,34 @@ var Rectangle = function(x, y, width, height) {
     this.radius = radius;
     this.radians = radians;
     this.isDragging = false;
-  
+    this.color=rectColor;
+    this.stroke=rectColor;
+    this.isSelected=false;
+
     this.render = function(ctx) {
+
+
+      if(this.isSelected==true){
+        this.stroke='red';
+        ctx.globalCompositeOperation='source-over';
+      }else{
+        this.stroke=rectColor;
+      }
+
+
       ctx.save();
   
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius, 0, this.radians, false);
-      ctx.fillStyle = '#2793ef';
+      ctx.fillStyle =rectColor;
+      ctx.strokeStyle = this.stroke;
+      ctx.lineWidth   = 3;
+      ctx.stroke();
       ctx.fill();
   
       ctx.restore();
     }
+
   }
   
   var MouseTouchTracker = function(canvas, callback){
@@ -109,8 +147,11 @@ var Rectangle = function(x, y, width, height) {
       var rect = canvas.getBoundingClientRect();
       var offsetTop = rect.top;
       var offsetLeft = rect.left;
-  
+      
+   
+
       if (evt.touches) {
+        console.warn("evt; ",evt);
         return {
           x: evt.touches[0].clientX - offsetLeft,
           y: evt.touches[0].clientY - offsetTop
@@ -124,17 +165,21 @@ var Rectangle = function(x, y, width, height) {
     }
   
     function onDown(evt) {
+      console.warn("onDown; ",evt);
       evt.preventDefault();
       var coords = processEvent(evt);
       callback('down', coords.x, coords.y);
+
     }
   
     function onUp(evt) {
+      console.warn("onUp; ",evt);
       evt.preventDefault();
       callback('up');
     }
   
     function onMove(evt) {
+      //console.warn("onMove; ",evt);
       evt.preventDefault();
       var coords = processEvent(evt);
       callback('move', coords.x, coords.y);
@@ -150,6 +195,7 @@ var Rectangle = function(x, y, width, height) {
   }
   
   function isHit(shape, x, y) {
+    console.warn("shape",shape);
     if (shape.constructor.name === 'Arc') {
       var dx = shape.x - x;
       var dy = shape.y - y;
@@ -157,6 +203,7 @@ var Rectangle = function(x, y, width, height) {
         return true
       }
     } else {
+      console.warn("shape2",shape);
       if (x > shape.x - shape.width * 0.5 && y > shape.y - shape.height * 0.5 && x < shape.x + shape.width - shape.width * 0.5 && y < shape.y + shape.height - shape.height * 0.5) {
         return true;
       }
@@ -170,11 +217,33 @@ var Rectangle = function(x, y, width, height) {
   var startX = 0;
   var startY = 0;
   
+ 
+ 
   var rectangle = new Rectangle(50, 50, 100, 100);
-  rectangle.render(ctx);
+
+  function addRect(){
+ 
+    canvasArray.push(new Rectangle(50, 50, 100, 100));
+    //rectangle.render(ctx);
+
+    for (let i = 0; i < canvasArray.length; i++) {
+      ///canvasArray[i].push(rectangle);
+      canvasArray[i].render(ctx);
+    }
+
+  }
+
+
+
   
-  var circle = new Arc(200, 140, 50, Math.PI * 2);
-  circle.render(ctx);
+
+  
+
+ 
+  
+ 
+  //var circle = new Arc(200, 140, 50, Math.PI * 2);
+ // circle.render(ctx);
   
   var mtt = new MouseTouchTracker(canvas,
     function(evtType, x, y) {
@@ -187,15 +256,22 @@ var Rectangle = function(x, y, width, height) {
           startY = y;
           if (isHit(rectangle, x, y)) {
             rectangle.isDragging = true;
+            rectangle.isSelected = true;
+          }else{
+            rectangle.isSelected = false;
           }
-          if (isHit(circle, x, y)) {
+         /* if (isHit(circle, x, y)) {
             circle.isDragging = true;
+            circle.isSelected = true;
           }
+          else{
+            circle.isSelected = false;
+          }*/
           break;
   
         case 'up':
           rectangle.isDragging = false;
-          circle.isDragging = false;
+         //circle.isDragging = false;
           break;
   
         case 'move':
@@ -209,14 +285,26 @@ var Rectangle = function(x, y, width, height) {
             rectangle.y += dy;
           }
   
-          if (circle.isDragging) {
+         /* if (circle.isDragging) {
             circle.x += dx;
             circle.y += dy;
-          }
+          }*/
           break;
       }
   
-      circle.render(ctx);
+      var getX=document.getElementById('getx');
+      getX.innerText=rectangle.x;
+
+      var getY=document.getElementById('gety');
+      getY.innerText=rectangle.y;
+
+      //circle.render(ctx);
       rectangle.render(ctx);
+
+      for (let i = 0; i < canvasArray.length; i++) {
+        ///canvasArray[i].push(rectangle);
+        canvasArray[i].render(ctx);
+      }
+
     }
   );
